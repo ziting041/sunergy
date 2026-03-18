@@ -10,6 +10,7 @@ from routers.site import router as site_router
 from routers.visualize import router as visualize_router
 from routers.data import router as data_router
 from routers.train import router as train_router
+from routers.predict import router as predict_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -32,6 +33,7 @@ app.include_router(site_router)
 app.include_router(visualize_router)
 app.include_router(data_router)
 app.include_router(train_router)
+app.include_router(predict_router)
 
 @app.get("/")
 def root():
