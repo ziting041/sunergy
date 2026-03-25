@@ -366,12 +366,12 @@ export default function Dashboard({
                           </div>
 
                           <div className="flex justify-between items-end">
-                            <div>
+                            {/* <div>
                               <p className="text-[10px] text-white/30 uppercase leading-none mb-1">
                                 歷史準確度
                               </p>
                               <p className="text-sm font-bold text-green-400">{model.acc}</p>
-                            </div>
+                            </div> */}
                             <div>
                               <p className="text-[10px] text-white/30 uppercase leading-none mb-1">
                                 模型類型
