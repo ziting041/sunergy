@@ -101,15 +101,18 @@ function App() {
   // 3. API 串接函式 (從 App2.js 帶入)
   // ==============================
   const submitCreateSite = async (formData) => {
-    if (!currentUser) return;
+    if (!currentUser) return { success: false, message: "請先登入" };
     const res = await fetch("http://127.0.0.1:8000/site/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...formData, user_id: currentUser.user_id }),
     });
+    const data = await res.json();
     if (res.ok) {
-      setIsCreateSiteModalOpen(false);
       window.dispatchEvent(new Event("site-updated"));
+      return { success: true };
+    } else {
+      return { success: false, message: data.detail || "新增案場失敗" };
     }
   };
 

@@ -7,7 +7,7 @@ import re
 import time
 
 from database import get_db
-from models import Site, SiteData, AfterData, TrainedModel
+from models import User, Site, SiteData, AfterData, TrainedModel
 from schemas import CreateSite, UpdateSite
 
 router = APIRouter(prefix="/site", tags=["Site"])

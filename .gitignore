@@ -9,7 +9,8 @@ __pycache__/
 dist/
 build/
 *.whl
-
+backend/processed_data/*
+backend/uploads/models/*
 # Virtual environment
 backend/venv/
 venv/
