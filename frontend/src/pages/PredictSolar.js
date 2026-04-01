@@ -6,24 +6,24 @@ import { saveAs } from 'file-saver';
 
 /* ── 誤差燈號組件 ── */
 const ErrorLight = ({ pct }) => {
-  if (pct === null || pct === undefined) return <span className="text-white/20 text-[10px]">—</span>;
+  if (pct === null || pct === undefined) return <span className="text-white/20 text-sm">—</span>;
   const v = Number(pct);
   if (v <= 5) return (
     <span className="inline-flex items-center gap-1.5">
-      <span className="size-2.5 rounded-full bg-green-400 shadow-[0_0_6px_rgba(34,197,94,0.5)]" />
-      <span className="text-green-400 text-[10px] font-mono">{v.toFixed(1)}%</span>
+      <span className="size-3 rounded-full bg-green-400 shadow-[0_0_6px_rgba(34,197,94,0.5)]" />
+      <span className="text-green-400 text-sm font-mono">{v.toFixed(1)}%</span>
     </span>
   );
   if (v <= 15) return (
     <span className="inline-flex items-center gap-1.5">
-      <span className="size-2.5 rounded-full bg-yellow-400 shadow-[0_0_6px_rgba(234,179,8,0.5)]" />
-      <span className="text-yellow-400 text-[10px] font-mono">{v.toFixed(1)}%</span>
+      <span className="size-3 rounded-full bg-yellow-400 shadow-[0_0_6px_rgba(234,179,8,0.5)]" />
+      <span className="text-yellow-400 text-sm font-mono">{v.toFixed(1)}%</span>
     </span>
   );
   return (
     <span className="inline-flex items-center gap-1.5">
-      <span className="size-2.5 rounded-full bg-red-400 shadow-[0_0_6px_rgba(239,68,68,0.5)] animate-pulse" />
-      <span className="text-red-400 text-[10px] font-mono">{v.toFixed(1)}%</span>
+      <span className="size-3 rounded-full bg-red-400 shadow-[0_0_6px_rgba(239,68,68,0.5)] animate-pulse" />
+      <span className="text-red-400 text-sm font-mono">{v.toFixed(1)}%</span>
     </span>
   );
 };
@@ -42,9 +42,9 @@ const OverallStatus = ({ avgError, label }) => {
         <div className={`size-8 rounded-full ${cfg.bg} ${cfg.shadow} animate-pulse`} />
       </div>
       <div className="flex flex-col">
-        {label && <p className="text-[9px] text-white/30 font-bold uppercase tracking-widest">{label}</p>}
-        <span className={`text-sm font-black ${cfg.color}`}>{cfg.label}</span>
-        <span className="text-[9px] text-white/30 italic">{cfg.desc}</span>
+        {label && <p className="text-[11px] text-white/30 font-bold uppercase tracking-widest">{label}</p>}
+        <span className={`text-base font-black ${cfg.color}`}>{cfg.label}</span>
+        <span className="text-[11px] text-white/30 italic">{cfg.desc}</span>
       </div>
     </div>
   );
@@ -52,18 +52,18 @@ const OverallStatus = ({ avgError, label }) => {
 
 /* ── 模型顏色表 ── */
 const MODEL_COLORS = [
-  { text: 'text-primary',    bg: 'bg-primary/15',    border: 'border-primary/30',    dot: 'bg-primary' },
-  { text: 'text-cyan-400',   bg: 'bg-cyan-400/15',   border: 'border-cyan-400/30',   dot: 'bg-cyan-400' },
+  { text: 'text-primary', bg: 'bg-primary/15', border: 'border-primary/30', dot: 'bg-primary' },
+  { text: 'text-cyan-400', bg: 'bg-cyan-400/15', border: 'border-cyan-400/30', dot: 'bg-cyan-400' },
   { text: 'text-violet-400', bg: 'bg-violet-400/15', border: 'border-violet-400/30', dot: 'bg-violet-400' },
-  { text: 'text-rose-400',   bg: 'bg-rose-400/15',   border: 'border-rose-400/30',   dot: 'bg-rose-400' },
-  { text: 'text-emerald-400',bg: 'bg-emerald-400/15',border: 'border-emerald-400/30',dot: 'bg-emerald-400' },
+  { text: 'text-rose-400', bg: 'bg-rose-400/15', border: 'border-rose-400/30', dot: 'bg-rose-400' },
+  { text: 'text-emerald-400', bg: 'bg-emerald-400/15', border: 'border-emerald-400/30', dot: 'bg-emerald-400' },
   { text: 'text-orange-400', bg: 'bg-orange-400/15', border: 'border-orange-400/30', dot: 'bg-orange-400' },
 ];
 
 /* ── 排序方向圖示 ── */
 const SortIcon = ({ direction }) => {
-  if (!direction) return <span className="text-white/15 text-[8px] ml-0.5">⇅</span>;
-  return <span className="text-primary text-[9px] ml-0.5 font-bold">{direction === 'asc' ? '↑' : '↓'}</span>;
+  if (!direction) return <span className="text-white/15 text-xs ml-0.5">⇅</span>;
+  return <span className="text-primary text-xs ml-0.5 font-bold">{direction === 'asc' ? '↑' : '↓'}</span>;
 };
 
 /* ── 取得燈號顏色 hex ── */
@@ -235,12 +235,12 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
         if (isNaN(numVal) || isNaN(filterNum)) return false;
 
         switch (filter.operator) {
-          case '>':  return numVal > filterNum;
-          case '<':  return numVal < filterNum;
-          case '=':  return Math.abs(numVal - filterNum) < 0.0001;
+          case '>': return numVal > filterNum;
+          case '<': return numVal < filterNum;
+          case '=': return Math.abs(numVal - filterNum) < 0.0001;
           case '>=': return numVal >= filterNum;
           case '<=': return numVal <= filterNum;
-          default:   return true;
+          default: return true;
         }
       });
     });
@@ -288,10 +288,15 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
 
   // ── Filter handler ──
   const updateFilter = (col, field, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [col]: { ...prev[col], [field]: value },
-    }));
+    setFilters(prev => {
+      const existing = prev[col] || {};
+      const updated = { ...existing, [field]: value };
+      // When setting a value, ensure operator is also set (default '>' for numeric)
+      if (field === 'value' && !existing.operator) {
+        updated.operator = isNumericCol(col) ? '>' : 'contains';
+      }
+      return { ...prev, [col]: updated };
+    });
     setPage(0);
   };
 
@@ -440,7 +445,7 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
             <div className="space-y-6">
               {/* 1. Upload */}
               <div>
-                <label className="text-[11px] text-white/30 mb-2 block font-bold uppercase tracking-widest">1. 上傳預測資料</label>
+                <label className="text-sm text-white/40 mb-2 block font-bold uppercase tracking-widest">1. 上傳預測資料</label>
                 <div
                   className="group border-2 border-dashed border-white/10 rounded-2xl p-6 text-center hover:bg-white/[0.03] hover:border-primary/50 transition-all cursor-pointer"
                   onClick={() => document.getElementById('predictFileInput').click()}
@@ -449,47 +454,45 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                   <div className="size-10 rounded-full bg-white/5 mx-auto mb-3 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                     <span className="material-symbols-outlined !text-xl text-white/30 group-hover:text-primary">upload_file</span>
                   </div>
-                  <p className="text-xs font-bold text-white/50 group-hover:text-white transition-colors">{file ? file.name : 'CSV / XLSX 檔案'}</p>
+                  <p className="text-sm font-bold text-white/50 group-hover:text-white transition-colors">{file ? file.name : 'CSV / XLSX 檔案'}</p>
                 </div>
               </div>
 
               {/* 2. Multi-Model Select */}
               <div>
-                <label className="text-[11px] text-white/30 mb-2 block font-bold uppercase tracking-widest">
+                <label className="text-sm text-white/40 mb-2 block font-bold uppercase tracking-widest">
                   2. 選擇訓練模型
                   <span className="ml-2 text-primary/60 normal-case">（可多選比對）</span>
                 </label>
                 <div className="max-h-[280px] overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
                   {trainedModels.length === 0 && (
-                    <p className="text-[10px] text-white/20 italic py-4 text-center">尚無可用模型</p>
+                    <p className="text-sm text-white/20 italic py-4 text-center">尚無可用模型</p>
                   )}
                   {trainedModels.map(m => {
                     const isSelected = selectedModelIds.includes(String(m.model_id));
                     return (
                       <label
                         key={m.model_id}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all border ${
-                          isSelected
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all border ${isSelected
                             ? 'bg-primary/10 border-primary/30 shadow-[0_0_12px_rgba(242,204,13,0.08)]'
                             : 'border-white/5 hover:bg-white/[0.03] hover:border-white/10'
-                        }`}
+                          }`}
                       >
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleModel(m.model_id)}
-                          className="accent-primary size-3.5 rounded"
+                          className="accent-primary size-4 rounded"
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${
-                              isSelected ? 'bg-primary/20 text-primary' : 'bg-white/5 text-white/50'
-                            }`}>
+                            <span className={`text-xs font-black px-2 py-0.5 rounded ${isSelected ? 'bg-primary/20 text-primary' : 'bg-white/5 text-white/50'
+                              }`}>
                               {m.model_type}
                             </span>
-                            <span className="text-[10px] text-white/30 font-mono">#{m.model_id}</span>
+                            <span className="text-xs text-white/30 font-mono">#{m.model_id}</span>
                           </div>
-                          <p className="text-[9px] text-white/20 mt-0.5 truncate">
+                          <p className="text-[11px] text-white/20 mt-0.5 truncate">
                             {m.site_name} · {m.trained_at ? m.trained_at.slice(0, 16).replace('T', ' ') : ''}
                           </p>
                         </div>
@@ -498,7 +501,7 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                   })}
                 </div>
                 {selectedModelIds.length > 0 && (
-                  <p className="text-[10px] text-primary/60 mt-2 font-bold">
+                  <p className="text-sm text-primary/60 mt-2 font-bold">
                     已選 {selectedModelIds.length} 個模型
                   </p>
                 )}
@@ -508,13 +511,13 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
             <button
               onClick={handlePredict}
               disabled={isPredicting || !file || selectedModelIds.length === 0}
-              className="w-full bg-primary text-background-dark py-4 rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-[0_10px_30px_rgba(242,204,13,0.2)] mt-6 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full bg-primary text-background-dark py-4 rounded-2xl font-black text-base hover:scale-[1.02] active:scale-95 transition-all shadow-[0_10px_30px_rgba(242,204,13,0.2)] mt-6 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isPredicting ? '運算執行中...' : selectedModelIds.length > 1 ? `比對預測 (${selectedModelIds.length} 個模型)` : '開始執行預測'}
             </button>
 
             {error && (
-              <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+              <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
                 {error}
               </div>
             )}
@@ -526,25 +529,25 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
               {okModels.map((m, i) => {
                 const c = MODEL_COLORS[i % MODEL_COLORS.length];
                 return (
-                  <div key={m.model_id} className={`${c.bg} border ${c.border} p-4 rounded-2xl`}>
+                  <div key={m.model_id} className={`${c.bg} border ${c.border} p-5 rounded-2xl`}>
                     <div className="flex items-center gap-2 mb-3">
-                      <span className={`size-2.5 rounded-full ${c.dot}`} />
-                      <span className={`text-xs font-black ${c.text}`}>{m.model_type}</span>
-                      <span className="text-[9px] text-white/30 font-mono">#{m.model_id}</span>
+                      <span className={`size-3 rounded-full ${c.dot}`} />
+                      <span className={`text-sm font-black ${c.text}`}>{m.model_type}</span>
+                      <span className="text-xs text-white/30 font-mono">#{m.model_id}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <p className="text-[9px] text-white/30 font-bold uppercase tracking-widest mb-1">預估發電量</p>
+                        <p className="text-xs text-white/30 font-bold uppercase tracking-widest mb-1">預估發電量</p>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-lg font-black font-mono text-white">{m.total_predicted_eac?.toLocaleString() ?? '—'}</span>
-                          <span className={`text-[10px] font-bold ${c.text}`}>kWh</span>
+                          <span className="text-xl font-black font-mono text-white">{m.total_predicted_eac?.toLocaleString() ?? '—'}</span>
+                          <span className={`text-sm font-bold ${c.text}`}>kWh</span>
                         </div>
                       </div>
                       <div>
-                        <p className="text-[9px] text-white/30 font-bold uppercase tracking-widest mb-1">平均誤差</p>
+                        <p className="text-xs text-white/30 font-bold uppercase tracking-widest mb-1">平均誤差</p>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-lg font-black font-mono text-white">{m.avg_error_pct !== null && m.avg_error_pct !== undefined ? m.avg_error_pct.toFixed(2) : '—'}</span>
-                          <span className={`text-[10px] font-bold ${c.text}`}>%</span>
+                          <span className="text-xl font-black font-mono text-white">{m.avg_error_pct !== null && m.avg_error_pct !== undefined ? m.avg_error_pct.toFixed(2) : '—'}</span>
+                          <span className={`text-sm font-bold ${c.text}`}>%</span>
                         </div>
                       </div>
                     </div>
@@ -565,10 +568,10 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
               <div className="w-full flex flex-col animate-fade-in">
                 {/* Header with actions */}
                 <div className="flex flex-wrap justify-between items-center mb-4 gap-3">
-                  <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                    <span className="material-symbols-outlined !text-base text-primary">table_chart</span>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <span className="material-symbols-outlined !text-xl text-primary">table_chart</span>
                     預測結果
-                    <span className="text-white/30 font-normal ml-2">
+                    <span className="text-base text-white/30 font-normal ml-2">
                       {hasActiveFilters
                         ? `篩選後 ${sortedRows.length} / 共 ${result.total_rows} 筆`
                         : `共 ${result.total_rows} 筆`
@@ -584,15 +587,15 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                           const c = MODEL_COLORS[i % MODEL_COLORS.length];
                           return (
                             <span key={m.model_id} className="flex items-center gap-1.5">
-                              <span className={`size-2 rounded-full ${c.dot}`} />
-                              <span className={`text-[10px] font-bold ${c.text}`}>{m.model_type}#{m.model_id}</span>
+                              <span className={`size-2.5 rounded-full ${c.dot}`} />
+                              <span className={`text-sm font-bold ${c.text}`}>{m.model_type}#{m.model_id}</span>
                             </span>
                           );
                         })}
                       </div>
                     )}
                     {okModels.length === 1 && (
-                      <div className="text-[10px] text-white/30 mr-2">
+                      <div className="text-sm text-white/30 mr-2">
                         模型：<span className="text-primary font-bold">{okModels[0].model_type}</span>
                       </div>
                     )}
@@ -600,16 +603,15 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                     {/* Toggle filter button */}
                     <button
                       onClick={() => setShowFilters(f => !f)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
-                        showFilters
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold border transition-all ${showFilters
                           ? 'bg-primary/10 border-primary/30 text-primary'
                           : 'border-white/10 text-white/40 hover:bg-white/5 hover:text-white/60'
-                      }`}
+                        }`}
                     >
-                      <span className="material-symbols-outlined !text-sm">filter_alt</span>
+                      <span className="material-symbols-outlined !text-base">filter_alt</span>
                       篩選
                       {hasActiveFilters && (
-                        <span className="size-4 rounded-full bg-primary text-background-dark text-[8px] font-black flex items-center justify-center">
+                        <span className="size-5 rounded-full bg-primary text-background-dark text-[10px] font-black flex items-center justify-center">
                           {Object.values(filters).filter(f => f.value).length}
                         </span>
                       )}
@@ -619,9 +621,9 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                     {hasActiveFilters && (
                       <button
                         onClick={clearAllFilters}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-all"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-all"
                       >
-                        <span className="material-symbols-outlined !text-sm">close</span>
+                        <span className="material-symbols-outlined !text-base">close</span>
                         清除
                       </button>
                     )}
@@ -629,9 +631,9 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                     {/* Download XLSX button */}
                     <button
                       onClick={handleDownloadXlsx}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition-all"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition-all"
                     >
-                      <span className="material-symbols-outlined !text-sm">download</span>
+                      <span className="material-symbols-outlined !text-base">download</span>
                       下載 XLSX
                     </button>
                   </div>
@@ -639,11 +641,11 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
 
                 {/* Table */}
                 <div className="overflow-x-auto rounded-xl border border-white/5">
-                  <table className="w-full text-[10px] text-left whitespace-nowrap">
+                  <table className="w-full text-sm text-left whitespace-nowrap">
                     <thead className="bg-white/5 text-white/40 uppercase sticky top-0 z-10">
                       {/* Column headers with sort */}
                       <tr>
-                        <th className="px-3 py-2.5 font-bold">#</th>
+                        <th className="px-4 py-3 font-bold">#</th>
                         {displayCols.map(col => {
                           const mid = getModelIdFromCol(col);
                           const c = mid !== null && modelColorMap[mid] ? modelColorMap[mid] : null;
@@ -653,7 +655,7 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                           return (
                             <th
                               key={col}
-                              className={`px-3 py-2.5 font-bold cursor-pointer select-none hover:text-white/60 transition-colors ${isHighlight ? (c ? c.text : 'text-primary') : ''}`}
+                              className={`px-4 py-3 font-bold cursor-pointer select-none hover:text-white/60 transition-colors ${isHighlight ? (c ? c.text : 'text-primary') : ''}`}
                               onClick={() => handleSort(col)}
                             >
                               <span className="inline-flex items-center gap-0.5">
@@ -669,33 +671,33 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                       {/* Filter row */}
                       {showFilters && (
                         <tr className="bg-white/[0.03] border-t border-white/5">
-                          <td className="px-2 py-1.5"></td>
+                          <td className="px-3 py-2"></td>
                           {displayCols.map(col => {
                             const numeric = isNumericCol(col);
                             const filterVal = filters[col]?.value || '';
                             const filterOp = filters[col]?.operator || (numeric ? '>' : 'contains');
                             return (
-                              <td key={col} className="px-1.5 py-1.5">
+                              <td key={col} className="px-2 py-2">
                                 <div className="flex items-center gap-0.5">
                                   {numeric ? (
                                     <>
                                       <select
                                         value={filterOp}
                                         onChange={(e) => updateFilter(col, 'operator', e.target.value)}
-                                        className="bg-white/5 border border-white/10 rounded text-[9px] text-white/60 px-1 py-0.5 w-10 focus:border-primary/50 focus:outline-none"
+                                        className="bg-white/5 border border-white/10 rounded text-xs text-white/60 px-1.5 py-1 w-12 focus:border-primary/50 focus:outline-none"
                                       >
-                                        <option value=">">&gt;</option>
-                                        <option value="<">&lt;</option>
-                                        <option value="=">=</option>
-                                        <option value=">=">&gt;=</option>
-                                        <option value="<=">&lt;=</option>
+                                        <option value=">" className="text-black bg-white">&gt;</option>
+                                        <option value="<" className="text-black bg-white">&lt;</option>
+                                        <option value="=" className="text-black bg-white">=</option>
+                                        <option value=">=" className="text-black bg-white">&gt;=</option>
+                                        <option value="<=" className="text-black bg-white">&lt;=</option>
                                       </select>
                                       <input
                                         type="text"
                                         value={filterVal}
                                         onChange={(e) => updateFilter(col, 'value', e.target.value)}
                                         placeholder="值"
-                                        className="bg-white/5 border border-white/10 rounded text-[9px] text-white/70 px-1.5 py-0.5 w-16 placeholder:text-white/15 focus:border-primary/50 focus:outline-none font-mono"
+                                        className="bg-white/5 border border-white/10 rounded text-xs text-white/70 px-2 py-1 w-20 placeholder:text-white/15 focus:border-primary/50 focus:outline-none font-mono"
                                       />
                                     </>
                                   ) : (
@@ -707,7 +709,7 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                                         updateFilter(col, 'value', e.target.value);
                                       }}
                                       placeholder="搜尋..."
-                                      className="bg-white/5 border border-white/10 rounded text-[9px] text-white/70 px-1.5 py-0.5 w-full placeholder:text-white/15 focus:border-primary/50 focus:outline-none"
+                                      className="bg-white/5 border border-white/10 rounded text-xs text-white/70 px-2 py-1 w-full placeholder:text-white/15 focus:border-primary/50 focus:outline-none"
                                     />
                                   )}
                                 </div>
@@ -721,7 +723,7 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                     <tbody className="divide-y divide-white/5 font-mono text-white/70">
                       {pagedRows.length === 0 ? (
                         <tr>
-                          <td colSpan={displayCols.length + 2} className="px-4 py-8 text-center text-white/20 text-xs">
+                          <td colSpan={displayCols.length + 2} className="px-4 py-8 text-center text-white/20 text-sm">
                             {hasActiveFilters ? '沒有符合篩選條件的資料' : '無資料'}
                           </td>
                         </tr>
@@ -734,18 +736,18 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                             : '';
                           return (
                             <tr key={globalIdx} className={`hover:bg-white/[0.03] transition-colors ${rowBg}`}>
-                              <td className="px-3 py-2 text-white/20">{globalIdx + 1}</td>
+                              <td className="px-4 py-2.5 text-white/20">{globalIdx + 1}</td>
                               {displayCols.map(col => {
                                 const val = row[col];
                                 const mid = getModelIdFromCol(col);
                                 const c = mid !== null && modelColorMap[mid] ? modelColorMap[mid] : null;
 
-                                let cellClass = 'px-3 py-2';
+                                let cellClass = 'px-4 py-2.5';
                                 if (isPredCol(col)) cellClass += ` font-bold ${c ? c.text : 'text-primary'}`;
                                 else if (col === 'EAC') cellClass += ' text-blue-400';
                                 else if (isErrCol(col)) {
                                   return (
-                                    <td key={col} className="px-3 py-2">
+                                    <td key={col} className="px-4 py-2.5">
                                       <ErrorLight pct={val} />
                                     </td>
                                   );
@@ -753,7 +755,7 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
 
                                 return (
                                   <td key={col} className={cellClass}>
-                                    {val === null || val === undefined ? '—' : typeof val === 'number' ? Number(val).toFixed(4) : String(val)}
+                                    {val === null || val === undefined ? '—' : typeof val === 'number' ? (col.toLowerCase() === 'hour' || col.toLowerCase() === 'the_hour' ? Math.round(val) : Number(val).toFixed(4)) : String(val)}
                                   </td>
                                 );
                               })}
@@ -768,13 +770,13 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-4 text-[10px] text-white/40">
+                  <div className="flex items-center justify-between mt-4 text-sm text-white/40">
                     <span>顯示 {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, sortedRows.length)} / {sortedRows.length}{hasActiveFilters ? ` (篩選自 ${result.total_rows} 筆)` : ''}</span>
                     <div className="flex gap-1">
                       <button
                         onClick={() => setPage(p => Math.max(0, p - 1))}
                         disabled={page === 0}
-                        className="px-3 py-1 rounded border border-white/10 hover:bg-white/5 disabled:opacity-20 transition-all"
+                        className="px-4 py-1.5 rounded border border-white/10 hover:bg-white/5 disabled:opacity-20 transition-all"
                       >
                         上一頁
                       </button>
@@ -788,7 +790,7 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                           <button
                             key={pageNum}
                             onClick={() => setPage(pageNum)}
-                            className={`px-2.5 py-1 rounded border transition-all ${page === pageNum ? 'border-primary text-primary bg-primary/10' : 'border-white/10 hover:bg-white/5'}`}
+                            className={`px-3 py-1.5 rounded border transition-all ${page === pageNum ? 'border-primary text-primary bg-primary/10' : 'border-white/10 hover:bg-white/5'}`}
                           >
                             {pageNum + 1}
                           </button>
@@ -797,7 +799,7 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                       <button
                         onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                         disabled={page >= totalPages - 1}
-                        className="px-3 py-1 rounded border border-white/10 hover:bg-white/5 disabled:opacity-20 transition-all"
+                        className="px-4 py-1.5 rounded border border-white/10 hover:bg-white/5 disabled:opacity-20 transition-all"
                       >
                         下一頁
                       </button>
@@ -810,8 +812,8 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
                 <div className="size-20 rounded-full bg-white/5 mx-auto flex items-center justify-center">
                   <span className="material-symbols-outlined !text-4xl text-white/10">query_stats</span>
                 </div>
-                <p className="text-sm font-bold text-white/20 tracking-widest uppercase">上傳資料並選擇模型後即可開始預測</p>
-                <p className="text-[10px] text-white/10">可選擇多個模型進行比對分析</p>
+                <p className="text-base font-bold text-white/20 tracking-widest uppercase">上傳資料並選擇模型後即可開始預測</p>
+                <p className="text-sm text-white/10">可選擇多個模型進行比對分析</p>
               </div>
             )}
           </div>
@@ -820,8 +822,8 @@ export default function PredictSolar({ onBack, onNavigateToDashboard, onLogout, 
 
       {/* Footer */}
       <div className="p-8 border-t border-white/10 bg-background-dark/95 flex justify-end gap-6 backdrop-blur-xl">
-        <button onClick={onBack || onNavigateToDashboard} className="text-xs font-bold text-white/30 hover:text-white transition-colors">回模型訓練</button>
-        <button onClick={onNavigateToDashboard} className="px-10 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-xs hover:bg-white/10 hover:border-white/20 transition-all">返回首頁看板</button>
+        <button onClick={onBack || onNavigateToDashboard} className="text-sm font-bold text-white/30 hover:text-white transition-colors">回模型訓練</button>
+        <button onClick={onNavigateToDashboard} className="px-10 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm hover:bg-white/10 hover:border-white/20 transition-all">返回首頁看板</button>
       </div>
     </div>
   );
