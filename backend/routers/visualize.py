@@ -529,7 +529,6 @@ def save_cleaned_data(payload: dict, db: Session = Depends(get_db)):
 
     csv_filename = f"{Path(file_name).stem}_site_{site_id}_cleaned.csv"
     csv_path = processed_dir / csv_filename
-    df.columns = [c.upper() for c in df.columns]
     df.to_csv(csv_path, index=False)
 
     # outlier params
@@ -544,16 +543,9 @@ def save_cleaned_data(payload: dict, db: Session = Depends(get_db)):
     # 注意：after_data.data_id 目前仍沿用舊設計，只能先暫存第一筆來源 data_id
     source_data_id = int(entries[0].data_id)
 
-    upload_id = payload.get("upload_id")
-
-    if upload_id is None:
-        raise HTTPException(status_code=400, detail="缺少 upload_id")
-
-    upload_id = int(upload_id)
-
     after = AfterData(
-        upload_id=upload_id,
         site_id=site_id,
+        data_id=source_data_id,
         after_name=f"{file_name}_site_{site_id}_cleaned",
         before_rows=before_rows,
         after_rows=after_rows,

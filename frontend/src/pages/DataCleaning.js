@@ -10,6 +10,9 @@ import {
   Legend,
 } from "chart.js";
 import { Scatter } from "react-chartjs-2";
+import { useRef } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 ChartJS.register(PointElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -456,6 +459,14 @@ export default function DataCleaning({
   onNavigateToPredict,
   onNavigateToModelMgmt,
 }) {
+  const scatterRef = useRef();
+  const boxplotRef = useRef();
+  const corrRef = useRef();
+
+  const pdfScatterRef = useRef();
+  const pdfBoxplotRef = useRef();
+  const pdfCorrRef = useRef();
+
   const [applyGiTm, setApplyGiTm] = useState(false);
   const [applyOutlier, setApplyOutlier] = useState(false);
 
@@ -475,6 +486,12 @@ export default function DataCleaning({
   );
 
   const [stages, setStages] = useState(null);
+
+  const rawHourKeys = stages?.raw?.boxplot_by_hour
+    ? Object.keys(stages.raw.boxplot_by_hour)
+        .map(Number)
+        .sort((a, b) => a - b)
+    : null;
 
   const currentStageKey = applyOutlier
     ? "after_outlier"
@@ -633,109 +650,179 @@ export default function DataCleaning({
     if (!plots) return <div className="text-center py-20 text-white/60">無資料可顯示</div>;
 
     switch (selectedTab) {
-      case "scatter":
-        if (!plots.scatter_matrix) {
-          return <div className="text-white/40">無散佈矩陣資料</div>;
+        case "scatter":
+          if (!plots.scatter_matrix) {
+            return <div className="text-white/40">無散佈矩陣資料</div>;
+          }
+          return (
+            <div ref={scatterRef}>
+              <div className="grid grid-cols-3 gap-6">
+                {plots.scatter_matrix.variables.map((v1) =>
+                  plots.scatter_matrix.variables.map((v2) => {
+                    if (v1 === v2) {
+                      const hist = plots.scatter_matrix.hist?.[v1] || {
+                        bins: [],
+                        counts: [],
+                      };
+
+                      return (
+                        <div key={`${v1}_${v2}`} style={{ width: 250 }}>
+                          <HistogramSVG bins={hist.bins} counts={hist.counts} />
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div key={`${v1}_${v2}`} style={{ width: 250 }}>
+                          <RenderPairScatter
+                            rowVar={v1}
+                            colVar={v2}
+                            plots={plots.scatter_matrix}
+                          />
+                        </div>
+                      );
+                    }
+                  })
+                )}
+              </div>
+            </div>
+          );
+      
+        case "boxplot": {
+          const rawHourKeys = stages?.raw?.boxplot_by_hour
+            ? Object.keys(stages.raw.boxplot_by_hour)
+                .map(Number)
+                .sort((a, b) => a - b)
+            : null;
+
+          return (
+            <div>
+              <div ref={boxplotRef}>
+                <div className="flex gap-4 justify-center mb-8">
+                  {boxplotSubTabs.map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setSelectedBoxplot(tab.key)}
+                      className={`px-8 py-3 rounded-lg font-medium transition-all ${
+                        selectedBoxplot === tab.key
+                          ? "bg-blue-600 text-white shadow-lg"
+                          : "bg-gray-800 text-white/70 hover:bg-gray-700"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex justify-center">
+                  {selectedBoxplot === "month" && plots.boxplot_by_month && (
+                    <BoxplotSVG groups={plots.boxplot_by_month} />
+                  )}
+                  {selectedBoxplot === "day" && plots.boxplot_by_day && (
+                    <BoxplotSVG groups={plots.boxplot_by_day} />
+                  )}
+                  {selectedBoxplot === "hour" && plots.boxplot_by_hour && (
+                    <BoxplotSVG
+                      groups={plots.boxplot_by_hour}
+                      expectedKeys={
+                        rawHourKeys ||
+                        Object.keys(plots.boxplot_by_hour)
+                          .map(Number)
+                          .sort((a, b) => a - b)
+                      }
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          );
         }
-        return (
-          <div className="grid grid-cols-3 gap-6">
-            {plots.scatter_matrix.variables.map((v1) =>
-              plots.scatter_matrix.variables.map((v2) => {
-                if (v1 === v2) {
-                  const hist = plots.scatter_matrix.hist?.[v1] || {
-                    bins: [],
-                    counts: [],
-                  };
-                  return (
-                    <div key={`${v1}_${v2}`} className="bg-black/20 p-4 rounded-xl">
-                      <div className="text-sm text-white/80 mb-3 text-center">{v1}</div>
-                      <HistogramSVG bins={hist.bins} counts={hist.counts} height={160} />
-                    </div>
-                  );
-                } else {
-                  return (
-                    <div key={`${v1}_${v2}`} className="bg-black/20 p-4 rounded-xl">
-                      <div className="text-xs text-white/70 mb-3 text-center">
-                        {v1} vs {v2}
-                      </div>
-                      <div className="h-64">
-                        <RenderPairScatter
-                          rowVar={v1}
-                          colVar={v2}
-                          plots={plots.scatter_matrix}
-                        />
-                      </div>
-                    </div>
-                  );
-                }
-              })
-            )}
-          </div>
-        );
-
-      case "boxplot": {
-        const rawHourKeys = stages?.raw?.boxplot_by_hour
-          ? Object.keys(stages.raw.boxplot_by_hour)
-              .map(Number)
-              .sort((a, b) => a - b)
-          : null;
-
-        return (
-          <div>
-            <div className="flex gap-4 justify-center mb-8">
-              {boxplotSubTabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setSelectedBoxplot(tab.key)}
-                  className={`px-8 py-3 rounded-lg font-medium transition-all ${
-                    selectedBoxplot === tab.key
-                      ? "bg-blue-600 text-white shadow-lg"
-                      : "bg-gray-800 text-white/70 hover:bg-gray-700"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-            <div className="flex justify-center">
-              {selectedBoxplot === "month" && plots.boxplot_by_month && (
-                <BoxplotSVG groups={plots.boxplot_by_month} />
-              )}
-              {selectedBoxplot === "day" && plots.boxplot_by_day && (
-                <BoxplotSVG groups={plots.boxplot_by_day} />
-              )}
-              {selectedBoxplot === "hour" && plots.boxplot_by_hour && (
-                <BoxplotSVG
-                  groups={plots.boxplot_by_hour}
-                  expectedKeys={
-                    rawHourKeys ||
-                    Object.keys(plots.boxplot_by_hour)
-                      .map(Number)
-                      .sort((a, b) => a - b)
-                  }
+      
+        case "correlation":
+          const corrPlots = stages?.raw;
+          return corrPlots?.correlation_heatmap_full ? (
+            <div ref={corrRef}>
+              <div className="flex justify-center">
+                <CorrelationHeatmapSVG
+                  variables={stages?.raw?.correlation_heatmap_full?.variables}
+                  matrix={stages?.raw?.correlation_heatmap_full?.matrix}
                 />
-              )}
+              </div>
             </div>
-          </div>
-        );
-      }
-
-      case "correlation":
-        const corrPlots = stages?.raw;
-        return corrPlots?.correlation_heatmap_full ? (
-          <div className="flex justify-center">
-            <CorrelationHeatmapSVG
-              variables={corrPlots.correlation_heatmap_full.variables}
-              matrix={corrPlots.correlation_heatmap_full.matrix}
-            />
-          </div>
-        ) : (
-          <div className="text-white/40">無相關性熱圖資料</div>
-        );
-
+          ) : (
+            <div className="text-white/40">無相關性熱圖資料</div>
+          );
       default:
         return null;
     }
+  };
+
+  const [downloadOptions, setDownloadOptions] = useState({
+    scatter: true,
+    boxplot: true,
+    correlation: true,
+  });
+
+  const handleDownloadPDF = async () => {
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+        resolve();
+      }, 500);
+    });
+
+    await document.fonts.ready;
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    let y = 10;
+    const pageHeight = 280;
+
+    const addSection = async (ref, title) => {
+      if (!ref.current) return;
+
+      const canvas = await html2canvas(ref.current, {
+        scale: 2, // ⭐ 提升清晰度
+        useCORS: true,
+        width: ref.current.scrollWidth,
+        height: ref.current.scrollHeight,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const imgWidth = 190;
+      let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      const maxHeight = 260;
+      if (imgHeight > maxHeight) {
+        imgHeight = maxHeight;
+      }
+
+      // 換頁
+      if (y + imgHeight > pageHeight) {
+        pdf.addPage();
+        y = 10;
+      }
+
+      pdf.setFontSize(14);
+      pdf.text(title, 10, y);
+      y += 6;
+
+      pdf.addImage(imgData, "PNG", 10, y, imgWidth, imgHeight);
+      y += imgHeight + 10;
+    };
+
+    // ⭐⭐ 重點：真的去加內容
+    if (downloadOptions.scatter) {
+      await addSection(pdfScatterRef, "Scatter Matrix");
+    }
+
+    if (downloadOptions.boxplot) {
+      await addSection(pdfBoxplotRef, "Boxplot");
+    }
+
+    if (downloadOptions.correlation) {
+      await addSection(pdfCorrRef, "Correlation Heatmap");
+    }
+
+    // ⭐⭐ 最重要：下載
+    pdf.save("data_visualization.pdf");
   };
 
   return (
@@ -892,6 +979,67 @@ export default function DataCleaning({
             {applyOutlier ? "（已套用離群值處理）" : "（紅色圓點僅標示離群值，未移除）"}
           </div>
           <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 bg-black/20 px-4 py-2 rounded-xl">
+              {/* 選項 */}
+              <div className="flex items-center gap-4">
+
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={downloadOptions.scatter}
+                    onChange={(e) =>
+                      setDownloadOptions({
+                        ...downloadOptions,
+                        scatter: e.target.checked,
+                      })
+                    }
+                    className="accent-blue-500"
+                  />
+                  散佈矩陣
+                </label>
+
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={downloadOptions.boxplot}
+                    onChange={(e) =>
+                      setDownloadOptions({
+                        ...downloadOptions,
+                        boxplot: e.target.checked,
+                      })
+                    }
+                    className="accent-blue-500"
+                  />
+                  箱型圖
+                </label>
+
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={downloadOptions.correlation}
+                    onChange={(e) =>
+                      setDownloadOptions({
+                        ...downloadOptions,
+                        correlation: e.target.checked,
+                      })
+                    }
+                    className="accent-blue-500"
+                  />
+                  相關熱圖
+                </label>
+              </div>
+
+              {/* 分隔線 */}
+              <div className="w-px h-6 bg-white/20" />
+
+              {/* 下載按鈕 */}
+              <button
+                onClick={handleDownloadPDF}
+                className="bg-green-500 hover:bg-green-400 transition px-4 py-2 rounded-lg text-sm font-bold text-black"
+              >
+                下載 PDF
+              </button>
+            </div>
             <button
               onClick={onBack}
               className="rounded-lg border border-white/10 px-6 py-2 text-sm font-bold text-white hover:bg-white/10"
@@ -924,6 +1072,92 @@ export default function DataCleaning({
             </button>
           </div>
         </div>
+      </div>
+      <div style={{ position: "fixed",
+        top: 0,
+        left: 0,
+        opacity: 0,
+        pointerEvents: "none",
+        zIndex: -1}}>
+  
+        {downloadOptions.scatter && (
+          <div ref={pdfScatterRef}style={{ width: "800px", background: "white", padding: "20px"}}>
+            <h2>Scatter Matrix</h2>
+            {plots?.scatter_matrix && (
+              <div className="grid grid-cols-3 gap-6">
+                {plots.scatter_matrix.variables.map((v1) =>
+                  plots.scatter_matrix.variables.map((v2) => {
+                    if (v1 === v2) {
+                      const hist = plots.scatter_matrix.hist?.[v1] || {
+                        bins: [],
+                        counts: [],
+                      };
+
+                      return (
+                        <div key={`${v1}_${v2}`} style={{ width: 250 }}>
+                          <HistogramSVG bins={hist.bins} counts={hist.counts} />
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div key={`${v1}_${v2}`} style={{ width: 250 }}>
+                          <RenderPairScatter
+                            rowVar={v1}
+                            colVar={v2}
+                            plots={plots.scatter_matrix}
+                          />
+                        </div>
+                      );
+                    }
+                  })
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {downloadOptions.boxplot && (
+          <div ref={pdfBoxplotRef}>
+            <h2>Boxplot</h2>
+
+            {plots?.boxplot_by_month && (
+              <>
+                <h3>Month</h3>
+                <BoxplotSVG groups={plots.boxplot_by_month} />
+              </>
+            )}
+
+            {plots?.boxplot_by_day && (
+              <>
+                <h3>Day</h3>
+                <BoxplotSVG groups={plots.boxplot_by_day} />
+              </>
+            )}
+
+            {plots?.boxplot_by_hour && (
+              <>
+                <h3>Hour</h3>
+                <BoxplotSVG
+                  groups={plots.boxplot_by_hour}
+                  expectedKeys={rawHourKeys}
+                />
+              </>
+            )}
+          </div>
+        )}
+
+        {downloadOptions.correlation && (
+          <div ref={pdfCorrRef}>
+            <h2>Correlation</h2>
+            {stages?.raw?.correlation_heatmap_full && (
+              <CorrelationHeatmapSVG
+                variables={stages.raw.correlation_heatmap_full.variables}
+                matrix={stages.raw.correlation_heatmap_full.matrix}
+              />
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   );
