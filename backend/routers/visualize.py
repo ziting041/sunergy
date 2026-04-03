@@ -424,10 +424,19 @@ def visualize_data(
             "site_id": site_id,
             "file_name": file_name,
             "stages": {
-                "raw": plots_raw,
-                "after_gi_tm": plots_stage1,
-                "after_outlier": plots_stage2,
-            },
+                "raw": {
+                    **plots_raw,
+                    "row_count": len(df)
+                },
+                "after_gi_tm": {
+                    **plots_stage1,
+                    "row_count": len(df1)
+                },
+                "after_outlier": {
+                    **plots_stage2,
+                    "row_count": len(df2)
+                },
+            }
         }
     )
 
@@ -540,12 +549,11 @@ def save_cleaned_data(payload: dict, db: Session = Depends(get_db)):
     elif outlier_method == "isolation_forest":
         outlier_params = {"contamination": isolation_contamination}
 
-    # 注意：after_data.data_id 目前仍沿用舊設計，只能先暫存第一筆來源 data_id
-    source_data_id = int(entries[0].data_id)
+    upload_id = entries[0].upload_id
 
     after = AfterData(
         site_id=site_id,
-        data_id=source_data_id,
+        upload_id=upload_id,
         after_name=f"{file_name}_site_{site_id}_cleaned",
         before_rows=before_rows,
         after_rows=after_rows,

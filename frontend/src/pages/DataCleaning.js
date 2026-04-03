@@ -459,6 +459,11 @@ export default function DataCleaning({
   onNavigateToPredict,
   onNavigateToModelMgmt,
 }) {
+
+  const [siteName] = useState(
+    localStorage.getItem("selectedSiteName") || ""
+  );
+
   const scatterRef = useRef();
   const boxplotRef = useRef();
   const corrRef = useRef();
@@ -466,6 +471,7 @@ export default function DataCleaning({
   const pdfScatterRef = useRef();
   const pdfBoxplotRef = useRef();
   const pdfCorrRef = useRef();
+  const pdfSummaryRef = useRef();
 
   const [applyGiTm, setApplyGiTm] = useState(false);
   const [applyOutlier, setApplyOutlier] = useState(false);
@@ -487,19 +493,27 @@ export default function DataCleaning({
 
   const [stages, setStages] = useState(null);
 
-  const rawHourKeys = stages?.raw?.boxplot_by_hour
-    ? Object.keys(stages.raw.boxplot_by_hour)
-        .map(Number)
-        .sort((a, b) => a - b)
-    : null;
-
   const currentStageKey = applyOutlier
     ? "after_outlier"
     : applyGiTm
     ? "after_gi_tm"
     : "raw";
 
+  const beforeRows = stages?.raw?.row_count;
+  const afterRows = stages?.[currentStageKey]?.row_count;
+
+  const removedRatio =
+    beforeRows && afterRows
+      ? (beforeRows - afterRows) / beforeRows
+      : null;
+
   const plots = stages?.[currentStageKey] || null;
+
+  const rawHourKeys = stages?.raw?.boxplot_by_hour
+    ? Object.keys(stages.raw.boxplot_by_hour)
+        .map(Number)
+        .sort((a, b) => a - b)
+    : null;
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -688,11 +702,6 @@ export default function DataCleaning({
           );
       
         case "boxplot": {
-          const rawHourKeys = stages?.raw?.boxplot_by_hour
-            ? Object.keys(stages.raw.boxplot_by_hour)
-                .map(Number)
-                .sort((a, b) => a - b)
-            : null;
 
           return (
             <div>
@@ -779,36 +788,33 @@ export default function DataCleaning({
       if (!ref.current) return;
 
       const canvas = await html2canvas(ref.current, {
-        scale: 2, // ⭐ 提升清晰度
+        scale: 2,
         useCORS: true,
-        width: ref.current.scrollWidth,
-        height: ref.current.scrollHeight,
       });
 
       const imgData = canvas.toDataURL("image/png");
       const imgWidth = 190;
       let imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      const maxHeight = 260;
-      if (imgHeight > maxHeight) {
-        imgHeight = maxHeight;
-      }
+      if (imgHeight > 260) imgHeight = 260;
 
-      // 換頁
       if (y + imgHeight > pageHeight) {
         pdf.addPage();
         y = 10;
       }
 
       pdf.setFontSize(14);
-      pdf.text(title, 10, y);
+      pdf.text(title, 10, y); // 👉 這裡用英文就好
       y += 6;
 
       pdf.addImage(imgData, "PNG", 10, y, imgWidth, imgHeight);
       y += imgHeight + 10;
     };
 
-    // ⭐⭐ 重點：真的去加內容
+    // ⭐ 第一頁：摘要（重點🔥）
+    await addSection(pdfSummaryRef, "Summary");
+
+    // ⭐ 圖表
     if (downloadOptions.scatter) {
       await addSection(pdfScatterRef, "Scatter Matrix");
     }
@@ -821,8 +827,7 @@ export default function DataCleaning({
       await addSection(pdfCorrRef, "Correlation Heatmap");
     }
 
-    // ⭐⭐ 最重要：下載
-    pdf.save("data_visualization.pdf");
+    pdf.save("data_cleaning_report.pdf");
   };
 
   return (
@@ -1065,7 +1070,7 @@ export default function DataCleaning({
 
             <button
               onClick={handleSaveCleaned}
-              disabled={loading || saving || !plots || !applyOutlier || !siteId || !fileName}
+              disabled={loading || saving || !plots || (!applyGiTm && !applyOutlier) || !siteId || !fileName}
               className="rounded-lg bg-primary px-8 py-2 text-sm font-bold text-background-dark disabled:opacity-50"
             >
               確認清理並繼續 → 模型訓練
@@ -1079,7 +1084,59 @@ export default function DataCleaning({
         opacity: 0,
         pointerEvents: "none",
         zIndex: -1}}>
-  
+        {(
+          <div
+            ref={pdfSummaryRef}
+            style={{
+              width: "800px",
+              background: "white",
+              padding: "20px",
+              color: "black",
+            }}
+          >
+            <h2>資料清理報告</h2>
+
+            <p>檔案名稱: {fileName}</p>
+            <p>案場名稱: {siteName || `ID: ${siteId}`}</p>
+
+            <p>資料筆數（前）: {beforeRows ?? "-"}</p>
+                <p>資料筆數（後）: {afterRows ?? "-"}</p>
+                <p>
+                  刪除比例:{" "}
+                  {removedRatio !== null
+                    ? (removedRatio * 100).toFixed(2) + "%"
+                    : "-"}
+                </p>
+
+            <p>
+              GI=0刪除 / TM=0補值:
+              {applyGiTm ? " 有套用" : " 未套用"}
+            </p>
+
+            <p>
+              離群值處理:
+              {applyOutlier ? " 有套用" : " 未套用"}
+            </p>
+
+            {applyOutlier && (
+              <>
+                <p>方法: {outlierMethod}</p>
+
+                {outlierMethod.startsWith("iqr") && (
+                  <p>IQR factor: {iqrFactor}</p>
+                )}
+
+                {outlierMethod === "zscore" && (
+                  <p>Z threshold: {zThreshold}</p>
+                )}
+
+                {outlierMethod === "isolation_forest" && (
+                  <p>contamination: {isolationContamination}</p>
+                )}
+              </>
+            )}
+          </div>
+        )}
         {downloadOptions.scatter && (
           <div ref={pdfScatterRef}style={{ width: "800px", background: "white", padding: "20px"}}>
             <h2>Scatter Matrix</h2>

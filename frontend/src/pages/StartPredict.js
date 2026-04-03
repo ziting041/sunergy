@@ -180,6 +180,21 @@ export default function StartPredict({
       setRows(json.rows || null);
 
       // 存 localStorage
+    const selectedSiteObj = sites.find(
+      (s) => String(s.site_id) === String(selectedSite)
+    );
+
+    if (!selectedSiteObj) {
+      console.warn("找不到 site，fallback 用 id");
+      localStorage.setItem("selectedSiteName", `ID:${selectedSite}`);
+    } else {
+      localStorage.setItem("selectedSiteName", selectedSiteObj.site_name);
+    }
+
+    if (selectedSiteObj) {
+      localStorage.setItem("selectedSiteName", selectedSiteObj.site_name);
+      localStorage.setItem("selectedSiteId", selectedSiteObj.site_id);
+    }
     localStorage.setItem("lastUploadedFile", json.file_name);
     localStorage.setItem("lastDataId", json.upload_id);
     localStorage.removeItem("afterDataId");
