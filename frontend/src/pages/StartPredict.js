@@ -95,8 +95,10 @@ export default function StartPredict({
   /* ==================== 建立新案場 ==================== */
   const createNewSite = async () => {
     const uid = getUserId();
+
+    // ✅ Scenario 2：欄位未填
     if (!newSiteName || !newSiteCode || !newLocation) {
-      alert("請完整填寫新案場資料");
+      setSiteError("請完整填寫案場代號、案場名稱與地點");
       return;
     }
 
@@ -113,10 +115,18 @@ export default function StartPredict({
       });
 
       const json = await res.json();
-      if (!json.site_id) {
-        alert("新增案場失敗");
+
+      // ✅ Scenario 3：後端錯誤（重複 or 其他）
+      if (!res.ok) {
+        setSiteError(json.detail || "新增案場失敗");
         return;
       }
+
+      // ✅ 成功
+      setSiteError(""); // 清錯誤
+      setNewSiteName("");
+      setNewSiteCode("");
+      setNewLocation("");
 
       const res2 = await fetch(
         `http://127.0.0.1:8000/site/list?user_id=${uid}`
@@ -126,8 +136,9 @@ export default function StartPredict({
       setSites(siteList);
       setSelectedSite(json.site_id);
       setActiveTab("existing");
+
     } catch {
-      alert("新增案場失敗");
+      setSiteError("無法連線到伺服器");
     }
   };
 
@@ -355,6 +366,9 @@ export default function StartPredict({
               >
                 建立案場
               </button>
+              {siteError && (
+                <p className="text-sm text-red-400 mt-2">{siteError}</p>
+              )}
             </div>
           )}
         </div>
